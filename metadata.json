@@ -1,0 +1,5 @@
+{
+  "name": "Pencatat Keuangan Spreadsheet",
+  "description": "Aplikasi sederhana untuk mencatat transaksi keuangan yang terintegrasi langsung dengan Google Spreadsheet. Lacak pemasukan dan pengeluaran Anda dengan mudah.",
+  "requestFramePermissions": []
+}
