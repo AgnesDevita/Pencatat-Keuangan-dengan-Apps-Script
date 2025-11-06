@@ -56,7 +56,7 @@ export const getTransactions = async (): Promise<Transaction[]> => {
 };
 
 // Adds a new transaction by mapping App format to Sheet format
-export const addTransaction = async (transaction: NewTransaction): Promise<{ success: boolean; data: Transaction }> => {
+export const addTransaction = async (transaction: NewTransaction): Promise<{ success: boolean; message: string }> => {
    if (!isApiConfigured()) {
     console.warn("Mock API is in use. Configure your Google Apps Script URL in constants.ts");
     return new Promise(resolve => {
@@ -65,7 +65,7 @@ export const addTransaction = async (transaction: NewTransaction): Promise<{ suc
             const newBalance = transaction.type === TransactionType.INCOME ? lastBalance + transaction.amount : lastBalance - transaction.amount;
             const newTx: Transaction = { ...transaction, id: String(nextId++), balance: newBalance };
             MOCK_DB.unshift(newTx);
-            resolve({ success: true, data: newTx });
+            resolve({ success: true, message: 'Transaksi mock berhasil ditambahkan' });
         }, 500);
     });
   }
@@ -89,7 +89,13 @@ export const addTransaction = async (transaction: NewTransaction): Promise<{ suc
     throw new Error(`Gagal menyimpan transaksi di Google Sheet. Server merespon dengan status: ${response.status}`);
   }
 
-  // We assume the POST was successful and the data is being processed.
-  // The App.tsx component will re-fetch the entire list to ensure UI consistency.
-  return { success: true, data: { ...transaction, id: new Date().toISOString() } };
+  // **PERBAIKAN UTAMA: Baca dan periksa respons JSON**
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.message || 'Gagal menyimpan transaksi di server Google Script.');
+  }
+
+  // Kirim pesan sukses dari server
+  return { success: true, message: result.message || 'Transaksi berhasil ditambahkan' };
 };

@@ -51,15 +51,17 @@ const App: React.FC = () => {
   const handleAddTransaction = async (newTransaction: NewTransaction) => {
     setIsSubmitting(true);
     try {
+      // 'result' sekarang berisi { success: true, message: '...' }
       const result = await addTransaction(newTransaction);
+      
       if (result.success) {
-        setNotification({ message: 'Transaksi berhasil! Menyinkronkan data...', type: 'success' });
+        // Gunakan pesan dari server dan sinkronkan
+        setNotification({ message: result.message + ' Menyinkronkan data...', type: 'success' });
         await fetchTransactions();
-      } else {
-        throw new Error('Gagal menambahkan transaksi');
       }
+      // 'else' tidak diperlukan karena addTransaction akan melempar error jika gagal
     } catch (error) {
-      handleError(error);
+      handleError(error); // Error yang sebenarnya (mis. "Sheet tidak ditemukan") akan ditangkap di sini
     } finally {
       setIsSubmitting(false);
     }
